@@ -80,7 +80,10 @@ export default function Home() {
             <Button
               size="sm"
               className="gap-1.5 bg-brass text-ink hover:bg-brass-soft"
-              onClick={() => window.print()}
+              onClick={() => {
+                toast("In the print dialog, set Destination to \"Save as PDF\"");
+                window.print();
+              }}
             >
               <FileDown className="size-4" />
               Download PDF
@@ -94,8 +97,8 @@ export default function Home() {
           <div className={`${view === "edit" ? "block" : "hidden"} lg:block print:hidden`}>
             <ResumeEditor data={data} setData={setData} />
           </div>
-          <div className={`${view === "preview" ? "block" : "hidden"} lg:block`}>
-            <div className="lg:sticky lg:top-24">
+          <div className={`${view === "preview" ? "block" : "hidden"} lg:block print:block`}>
+            <div className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto print:static print:max-h-none print:overflow-visible">
               <div className="crop-marks mx-auto w-full max-w-[8.5in] print:mx-0 print:max-w-none">
                 <span className="crop-tl" aria-hidden />
                 <span className="crop-br" aria-hidden />
