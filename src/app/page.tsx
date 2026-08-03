@@ -6,7 +6,7 @@ import { ResumeEditor } from "@/components/resume/editor";
 import { ResumePreview } from "@/components/resume/preview";
 import { useResumeStorage } from "@/lib/use-resume-storage";
 import { blankResume, sampleResume, wordCount } from "@/lib/resume-types";
-import { FileDown, RotateCcw, Sparkles } from "lucide-react";
+import { FileDown, Printer, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -21,6 +21,46 @@ function timeAgo(ts: number | null) {
 export default function Home() {
   const { data, setData, reset, loaded, savedAt } = useResumeStorage();
   const [view, setView] = useState<"edit" | "preview">("edit");
+  const [downloading, setDownloading] = useState(false);
+
+  async function downloadPdf() {
+    const node = document.getElementById("resume-preview");
+    if (!node) return;
+    setDownloading(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas-pro"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(node, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "in", format: "letter" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      const fileName = data.personal.name
+        ? `${data.personal.name.trim().replace(/\s+/g, "-")}-resume.pdf`
+        : "resume.pdf";
+      pdf.save(fileName);
+    } catch {
+      toast.error("Couldn't generate PDF — try Print instead");
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -78,15 +118,22 @@ export default function Home() {
               <span className="hidden sm:inline">Clear</span>
             </Button>
             <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => window.print()}
+            >
+              <Printer className="size-4" />
+              <span className="hidden sm:inline">Print</span>
+            </Button>
+            <Button
               size="sm"
               className="gap-1.5 bg-brass text-ink hover:bg-brass-soft"
-              onClick={() => {
-                toast("In the print dialog, set Destination to \"Save as PDF\"");
-                window.print();
-              }}
+              disabled={downloading}
+              onClick={downloadPdf}
             >
               <FileDown className="size-4" />
-              Download PDF
+              {downloading ? "Preparing…" : "Download PDF"}
             </Button>
           </div>
         </div>
