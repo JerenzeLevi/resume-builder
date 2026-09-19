@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import {
   ACCENT_COLORS,
+  RESUME_FONTS,
+  RESUME_TEMPLATES,
   EducationEntry,
   ExperienceEntry,
   ProjectEntry,
@@ -415,11 +417,68 @@ export function ResumeEditor({ data, setData }: Props) {
 
       <Card>
         <CardHeader>
+          <CardTitle>Template</CardTitle>
+          <CardDescription>Pick the layout used for the preview and PDF.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {RESUME_TEMPLATES.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                onClick={() => set("template", t.value)}
+                className={cn(
+                  "flex-1 rounded-md border p-3 text-left transition",
+                  data.template === t.value
+                    ? "border-foreground bg-muted"
+                    : "border-border hover:bg-muted/50"
+                )}
+              >
+                <p className="text-sm font-medium">{t.name}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t.description}</p>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Font</CardTitle>
+          <CardDescription>Applied to the whole preview and PDF.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            {RESUME_FONTS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => set("font", f.value)}
+                className={cn(
+                  "flex-1 rounded-md border p-3 text-left transition",
+                  data.font === f.value
+                    ? "border-foreground bg-muted"
+                    : "border-border hover:bg-muted/50"
+                )}
+                style={{ fontFamily: f.stack }}
+              >
+                <p className="text-sm font-medium">{f.name}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground" style={{ fontFamily: f.stack }}>
+                  Aa Bb Cc — The quick brown fox
+                </p>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Accent color</CardTitle>
           <CardDescription>Applied to your name and section headings.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {ACCENT_COLORS.map((c) => (
               <button
                 key={c.value}
@@ -434,6 +493,28 @@ export function ResumeEditor({ data, setData }: Props) {
                 title={c.name}
               />
             ))}
+            <label
+              className="relative flex size-9 cursor-pointer items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40"
+              title="Custom color"
+            >
+              <input
+                type="color"
+                value={data.accent}
+                onChange={(e) => set("accent", e.target.value)}
+                className="absolute inset-0 size-full cursor-pointer opacity-0"
+                aria-label="Custom accent color"
+              />
+              <span
+                className="size-7 rounded-full border border-border"
+                style={{ backgroundColor: data.accent }}
+              />
+            </label>
+            <Input
+              value={data.accent}
+              onChange={(e) => set("accent", e.target.value)}
+              className="h-9 w-28 font-mono text-xs"
+              aria-label="Accent color hex value"
+            />
           </div>
         </CardContent>
       </Card>

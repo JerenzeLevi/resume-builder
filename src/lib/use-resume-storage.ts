@@ -14,8 +14,14 @@ export function useResumeStorage() {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
+        const parsed = JSON.parse(raw) as Partial<ResumeData>;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage on mount
-        setData(JSON.parse(raw) as ResumeData);
+        setData({
+          ...sampleResume,
+          ...parsed,
+          template: parsed.template ?? "clean-columns",
+          font: parsed.font ?? "calibri",
+        });
       }
     } catch {
       // ignore corrupt storage

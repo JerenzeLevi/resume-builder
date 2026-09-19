@@ -26,6 +26,10 @@ export type ProjectEntry = {
   description: string;
 };
 
+export type ResumeTemplate = "classic" | "clean-columns";
+
+export type ResumeFont = "calibri" | "arial" | "times-new-roman";
+
 export type ResumeData = {
   personal: {
     name: string;
@@ -42,7 +46,40 @@ export type ResumeData = {
   skills: string[];
   projects: ProjectEntry[];
   accent: string;
+  template: ResumeTemplate;
+  font: ResumeFont;
 };
+
+export const RESUME_TEMPLATES: { value: ResumeTemplate; name: string; description: string }[] = [
+  {
+    value: "classic",
+    name: "Classic",
+    description: "Underlined section headers, centered contact line.",
+  },
+  {
+    value: "clean-columns",
+    name: "Clean Columns",
+    description: "Client-requested layout: bold role/dates rows, plain colored section labels.",
+  },
+];
+
+export const RESUME_FONTS: { value: ResumeFont; name: string; stack: string }[] = [
+  {
+    value: "calibri",
+    name: "Calibri",
+    stack: "Calibri, Candara, 'Segoe UI', Optima, sans-serif",
+  },
+  {
+    value: "arial",
+    name: "Arial",
+    stack: "Arial, Helvetica, sans-serif",
+  },
+  {
+    value: "times-new-roman",
+    name: "Times New Roman",
+    stack: "'Times New Roman', Times, Georgia, serif",
+  },
+];
 
 export const ACCENT_COLORS = [
   { name: "Indigo", value: "#4f46e5" },
@@ -157,7 +194,9 @@ export const sampleResume: ResumeData = {
         "Open-source component library and Figma kit used by 400+ stars on GitHub.",
     },
   ],
-  accent: "#4f46e5",
+  accent: "#0d9488",
+  template: "clean-columns",
+  font: "calibri",
 };
 
 export function wordCount(data: ResumeData): number {
@@ -192,6 +231,8 @@ export function blankResume(): ResumeData {
     education: [emptyEducation()],
     skills: [],
     projects: [],
-    accent: "#4f46e5",
+    accent: "#0d9488",
+    template: "clean-columns",
+    font: "calibri",
   };
 }
