@@ -199,8 +199,8 @@ export const sampleResume: ResumeData = {
   font: "calibri",
 };
 
-export function wordCount(data: ResumeData): number {
-  const parts = [
+function resumeParts(data: ResumeData): string[] {
+  return [
     data.personal.name,
     data.personal.title,
     data.summary,
@@ -209,10 +209,18 @@ export function wordCount(data: ResumeData): number {
     ...data.skills,
     ...data.projects.flatMap((p) => [p.name, p.description]),
   ];
-  return parts
+}
+
+export function wordCount(data: ResumeData): number {
+  return resumeParts(data)
     .join(" ")
     .split(/\s+/)
     .filter(Boolean).length;
+}
+
+/** Flattened, lowercased text of everything on the resume — used for job-description keyword matching. */
+export function resumeSearchableText(data: ResumeData): string {
+  return resumeParts(data).filter(Boolean).join(" ").toLowerCase();
 }
 
 export function blankResume(): ResumeData {

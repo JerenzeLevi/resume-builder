@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ResumeEditor } from "@/components/resume/editor";
 import { ResumePreview } from "@/components/resume/preview";
 import { useResumeStorage } from "@/lib/use-resume-storage";
 import { blankResume, sampleResume, wordCount } from "@/lib/resume-types";
-import { FileDown, Printer, RotateCcw, Sparkles } from "lucide-react";
+import { parsePdfToResume } from "@/lib/pdf-import";
+import { FileDown, FileUp, Printer, RotateCcw, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -22,6 +23,21 @@ export default function Home() {
   const { data, setData, reset, loaded, savedAt } = useResumeStorage();
   const [view, setView] = useState<"edit" | "preview">("edit");
   const [downloading, setDownloading] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function importPdf(file: File) {
+    setImporting(true);
+    try {
+      const parsed = await parsePdfToResume(file);
+      reset(parsed);
+      toast.success("Imported from PDF — please review, extraction is best-effort");
+    } catch {
+      toast.error("Couldn't read that PDF — try a text-based (not scanned) resume PDF");
+    } finally {
+      setImporting(false);
+    }
+  }
 
   async function downloadPdf() {
     const node = document.getElementById("resume-preview");
@@ -93,6 +109,27 @@ export default function Home() {
                 Preview
               </button>
             </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) importPdf(file);
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              disabled={importing}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp className="size-4" />
+              <span className="hidden sm:inline">{importing ? "Importing…" : "Import PDF"}</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"

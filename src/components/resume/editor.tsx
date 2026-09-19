@@ -19,6 +19,7 @@ import {
   emptyProject,
 } from "@/lib/resume-types";
 import { AddButton, MoveButtons, RemoveButton, moveItem } from "./field-array-controls";
+import { JobMatchCard } from "./job-match";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -518,6 +519,9 @@ export function ResumeEditor({ data, setData }: Props) {
           </div>
         </CardContent>
       </Card>
+
+      <JobMatchCard data={data} />
+
       <Separator />
     </div>
   );
